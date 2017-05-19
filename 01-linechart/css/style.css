@@ -1,0 +1,22 @@
+#container{
+	background: #ddd;
+	width: 500px;
+	height: 250px;
+}
+
+path{
+	fill:none;
+	stroke:#9D94D7;
+	stroke-width:3;
+}
+
+text{
+	fill:black;
+}
+
+.domain,.tick{
+	stroke:gray;
+	stroke-width:1;
+
+}
+
