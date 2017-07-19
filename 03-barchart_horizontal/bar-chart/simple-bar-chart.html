@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>d3 | bar chart</title>
+	<link rel="stylesheet" href="">
+	<script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+	<div class="chart"></div>
+	<script>
+		var data = [4,8,15,16,23,42,12];
+        
+        var x = d3.scale.linear()
+	       .domain([0, d3.max(data)])   
+	       .range([0, 420]);
+
+        
+    /* 下面代码的运行结果是生成一个条状图，但是没有对条状图的长度进行控制，下面采用scale.linear方法对数据长度进行设置。 */
+		d3.select(".chart")
+		.selectAll("div")
+		.data(data)  //data方法用于对选中的结果集绑定数据。
+		.enter().append("div")  //enter方法和append方法表示由于此时div元素还不存在，必须根据数据的个数将它们创造出来。
+		.style({'width': function (data) {return x(data) + "px";} ,"background": "black","border": "2px solid #fff","color": "#fff"})
+		.text(function(data) {return data;});  
+
+		//style方法和text方法的参数是函数，表示函数的运行结果就是设置网页元素的值
+    
+    
+     
+
+
+/*reference*/
+
+//  http://www.danasilver.org/github-language-stats/
+
+// http://javascript.ruanyifeng.com/library/d3.html
+
+	</script>
+</body>
+</html>
+
+
