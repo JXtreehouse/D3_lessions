@@ -1,0 +1,280 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>tree图</title>
+</head>
+<body>
+<script src="https://cdn.bootcss.com/d3/3.5.17/d3.js"></script>
+<script>
+    var fontSize = 10
+    var lineSpace = 2
+    var boxHeight = 40
+    var boxWidth = 130
+
+    var width = 960
+    var height = 1000
+
+
+    var tree = d3.layout.tree()
+            .size([height, width - 160])
+
+
+    var diagonal = d3.svg.diagonal()
+            .projection(function (d) {
+                return [d.y, d.x];
+            });
+
+    var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(80,0)");
+
+    d3.json("city.json", function (error, root) {
+
+        root.x0 = height / 2;
+        root.y0 = 0;
+
+        //以第一个节点为起始节点，重绘
+        redraw(root);
+
+        //重绘函数
+        function redraw(source) {
+
+            /*
+             （1） 计算节点和连线的位置
+             */
+
+            //应用布局，计算节点和连线
+            var nodes = tree.nodes(root);
+            var links = tree.links(nodes);
+
+            //重新计算节点的y坐标
+            nodes.forEach(function (d) {
+                d.y = d.depth * 180;
+            });
+            /*
+             （2） 节点的处理
+             */
+            nodes_redraw(nodes);
+            /*
+             （3） 连线的处理
+             */
+            links_redraw(links);
+            /*
+             （4） 将当前的节点坐标保存在变量x0、y0里，以备更新时使用
+             */
+            nodes.forEach(function (d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+
+
+            /*
+             节点的处理函数
+             */
+            function nodes_redraw(nodes) {   //获取节点的update部分
+                var nodeUpdate = svg.selectAll(".node")
+                        .data(nodes, function(d) {
+                            return d.name;
+                        });
+                //获取节点的enter部分
+                var nodeEnter = nodeUpdate.enter();
+                //获取节点的exit部分
+                var nodeExit = nodeUpdate.exit();
+                nodes_enter(nodeEnter);
+                nodes_update(nodeUpdate);
+                nodes_exit(nodeExit);
+            }
+
+            function nodes_enter(nodeEnter) {
+                //1. 节点的 Enter 部分的处理办法
+                var enterNodes = nodeEnter.append("g");
+
+                enterNodes
+                        .attr("class", "node")
+                        .attr("transform", function (d) {
+                                    return "translate(" + d.y + "," + d.x + ")";
+                                }
+                        )
+                        .append("rect")
+                        .attr('class', 'nodebox')
+                        .attr("x", -boxWidth / 2)
+                        .attr("y", -boxHeight / 2)
+                        .attr("width", boxWidth)
+                        .attr("height", boxHeight)
+
+                enterNodes.append("text")
+                        .attr("id", "nodetitle")
+                        .attr("class", "nodeTitle")
+                        .attr("y", -boxHeight / 2 + fontSize + 2 * lineSpace)
+                        .attr("text-anchor", "middle")
+                        .text(function (d) {
+                            return d.name;
+                        })
+
+                enterNodes.append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("class", "nodeText")
+                        .attr("y", -boxHeight / 2 + 2 * fontSize + 4 * lineSpace)
+                        .text(function (d) {
+                            return d.age ? d.age : 100;
+                        });
+
+
+                //
+                enterNodes.attr("transform", function (d) {
+                    return "translate(" + source.y0 + "," + source.x0 + ")";
+                }).on("click", function (d) {
+                    console.log(' click -->');
+                    console.log(d);
+                    toggle(d);
+                    redraw(d);
+                });
+            }
+
+            function nodes_update(nodeUpdate) {
+                //2. 节点的 Update 部分的处理办法
+                var updateNodes = nodeUpdate.transition()
+                        .duration(500)
+                        .attr("transform", function (d) {
+                            console.log('Update  -- > ');
+                            console.log(d);
+                            return "translate(" + d.y + "," + d.x + ")";
+                        });
+            }
+
+            function nodes_exit(nodeExit) {
+                //3. 节点的 Exit 部分的处理办法
+                var exitNodes = nodeExit.transition()
+                        .duration(500)
+                        .attr("transform", function (d) {
+                            console.log('exitNode  -- > ');
+                            console.log(d);
+                            return "translate(" + source.y + "," + source.x + ")";
+                        })
+                        .remove();
+            }
+
+            /*
+             连线的处理函数
+             */
+            function links_redraw(links) {
+                //获取连线的update部分
+                var linkUpdate = svg.selectAll(".link")
+                        .data(links);
+
+                //获取连线的enter部分
+                var linkEnter = linkUpdate.enter();
+
+                //获取连线的exit部分
+                var linkExit = linkUpdate.exit();
+
+                links_enter(linkEnter);
+                links_update(linkUpdate);
+                links_exit(linkExit);
+            }
+
+            function links_enter(linkEnter) {
+                //1. 连线的 Enter 部分的处理办法
+                linkEnter.insert("path", ".node")
+                        .attr("class", "link")
+                        .attr("d", function (d) {
+                            var o = {x: source.x0, y: source.y0};
+                            return diagonal({source: o, target: o});
+                        })
+                        .transition()
+                        .duration(500)
+                        .attr("d", diagonal);
+            }
+
+            function links_update(linkUpdate) {
+                //2. 连线的 Update 部分的处理办法
+                linkUpdate.transition()
+                        .duration(500)
+                        .attr("d", diagonal);
+            }
+
+            function links_exit(linkExit) {
+                //3. 连线的 Exit 部分的处理办法
+                linkExit.transition()
+                        .duration(500)
+                        .attr("d", function (d) {
+                            var o = {x: source.x, y: source.y};
+                            return diagonal({source: o, target: o});
+                        })
+                        .remove();
+            }
+
+        }
+
+    });
+
+
+    //切换开关，d 为被点击的节点
+    function toggle(d) {
+        if (d.children) {　//如果有子节点
+            d._children = d.children; //将该子节点保存到 _children
+            d.children = null;  //将子节点设置为null
+        } else {//如果没有子节点
+            d.children = d._children; //从 _children 取回原来的子节点
+            d._children = null; //将 _children 设置为 null
+        }
+    }
+
+
+    //DATA JOIN: Bind existing objects to new data
+    //        var existingLinks = svg.selectAll(".link").data(links)
+    //
+    //        var existingNodes = svg.selectAll(".node").data(nodes)
+    //
+    //
+    //        //ENTER: Create new objects where necessary
+    //        existingLinks.enter().append("path")
+    //                .attr("class", "link")
+    //                .attr("d", diagonal)
+
+
+    /*
+     newNodes.on("mouseenter", function() {
+     thisNode = d3.select(this)
+     thisNode.selectAll(".nodeText")
+     .attr('fill','red')
+     thisNode.selectAll(".nodeTitle")
+     .attr('fill','red')
+     })
+
+     newNodes.on("mouseleave", function(){
+     thisNode = d3.select(this)
+     thisNode.selectAll(".nodeText")
+     .attr('fill','balck')
+
+     thisNode.selectAll(".nodeTitle")
+     .attr('fill','balck')
+     })
+     */
+
+</script>
+<style type="text/css">
+    .nodebox {
+        fill: #fff;
+        stroke: steelblue;
+        stroke-width: 3.5px;
+    }
+
+    .nodeTitle {
+        font: 14px sans-serif;
+    }
+
+    .nodeText {
+        font: 10px sans-serif;
+    }
+
+    .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 3.5px;
+    }
+</style>
+</body>
+</html>
