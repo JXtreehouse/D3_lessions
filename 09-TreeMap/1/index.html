@@ -1,0 +1,79 @@
+
+<!-- http://blog.csdn.net/lzhlzz/article/details/44871351 -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>treemap</title>
+	<link rel="stylesheet" href="">
+	<style>
+		.nodeRect{
+			stroke:white;
+			stroke-width:2px;
+		}
+		.nodeName{
+			fill:white;
+			font-size: 12px;
+			font-family: simsun;
+
+		}
+	</style>
+	<script src="https://cdn.bootcss.com/d3/3.4.11/d3.js"></script>
+</head>
+<body>
+	<script>
+		var width = 1000,
+		    height = 500;
+		var svg = d3.select("body").append("svg")
+		    .attr("width",width)
+		    .attr("height",height);
+
+
+        //创建一个矩阵树图布局，尺寸设置为[width, height]，即SVG画布的尺寸，value访问器设定为gdp
+
+        
+		var treemap = d3.layout.treemap()
+		                .size([width,height])
+		                .value(function(d) {return d.gdp});
+
+		//这样设定value访问器后，每个节点都将拥有变量value，且其值为gdp的值。如果节点都子节点，则其gdp值为子节点value的和。例如，节点“浙江”的gdp是省内各城市的gdp的和。然后用d3.json请求文件，再转换数据。
+
+		d3.json("http://otc2ysde8.bkt.clouddn.com/mockdata/citygdp.json", function(err,root){
+
+			var nodes = treemap.nodes(root);
+			var links = treemap.links(nodes);
+
+			console.log(nodes);
+			console.log(links);
+
+			var color =d3.scale.category10();
+        //本例不绘制连线，只使用节点数组。节点的绘制很简单，按节点数目添加足够的分组元素<g>，<g>里再添加<rect>和<text>。
+			var  groups = svg.selectAll("g")
+			                 .data(nodes.filter(function (d) {return !d.children}))
+			                 .enter()
+			                 .append("g")
+
+			var rects = groups.append("rect")
+			                   .attr("class","nodeRect")
+			                   .attr("x", function(d){ return d.x})
+			                   .attr("y", function(d) {return d.y})
+			                   .attr("width", function(d) {return d.dx})
+			                   .attr("height", function(d) {return d.dy})
+			                   .style("fill", function(d,i) {return color(d.parent.name)})
+
+			var texts = groups.append("text")
+			                   .attr("class", "nodeName")
+			                   .attr("x", function(d) {return d.x})
+			                   .attr("y", function(d) {return d.y})
+			                   .attr("dx", "0.5em")
+			                   .attr("dy", "1.5em")
+			                   .text(function(d) {
+			                   	  return d.name + " " + d.gdp;
+			                   })
+
+		})
+
+	</script>
+</body>
+</html>
