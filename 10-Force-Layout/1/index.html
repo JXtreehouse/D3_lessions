@@ -1,0 +1,96 @@
+<!-- http://blog.csdn.net/lzhlzz/article/details/38061955 -->
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>力学图（ Force ）</title>
+	<link rel="stylesheet" href="">
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>  
+</head>
+<body>
+	<script>
+			var nodes = [ { name: "GuiLin"    }, 
+					  { name: "GuangZhou" },
+					  { name: "XiaMen"    },
+					  { name: "HangZhou"   },
+					  { name: "ShangHai"   },
+					  { name: "QingDao"    },
+					  { name: "TianJin"    },
+					  { name: "BeiJing"    },
+					  { name: "ChangChun"  },
+					  { name: "XiAn"       },
+					  { name: "WuluMuQi"  },
+					  { name: "LaSa"       },
+					  { name: "ChengDu"    } ];
+					 
+		var edges = [  { source : 0  , target: 1 } ,
+					   { source : 1  , target: 2 } ,
+					   { source : 2  , target: 3 } ,
+					   { source : 3  , target: 4 } ,
+					   { source : 4  , target: 5 } ,
+					   { source : 5  , target: 6 } ,
+					   { source : 6  , target: 7 } ,
+					   { source : 7  , target: 8 } ,
+					   { source : 8  , target: 9 } ,
+					   { source : 9  , target: 10 } ,
+					   { source : 10 , target: 11 } ,
+					   { source : 11 , target: 12 } ,
+					   { source : 12 , target: 0 } ];
+
+
+        var width = 600;
+        var height = 600;
+
+        console.log(edges);
+        
+
+        var svg = d3.select("body").append("svg")
+                     .attr("width",width)
+                     .attr("height",height);
+        var force  = d3.layout.force()  //力学图 Layout 的函数
+                       .nodes(nodes)  //传入顶点的数组
+                       .links(edges)   //放入边的数组
+                       .size([width,height])  //作用域的大小
+                       .linkDistance(200)  //设定两个顶点之间的长度
+                       .charge([-100])  // 设定弹力的大小。
+                       .start();   //开始转换
+
+       //有了这些数据，我们就可以作图了。我们用 SVG 中的 line 画边，用 SVG 中的 circle 画顶点。
+
+       var svg_edges = svg.selectAll("line")
+                          .data(edges)
+                          .enter()
+                          .append("line")
+                          .style("stroke","#ccc")
+                          .style("stroke-width",1);
+
+       var color = d3.scale.category20();
+       var svg_nodes = svg.selectAll("circle")
+                          .data(nodes)
+                          .enter()
+                          .append("circle")
+                          .attr("r",10)
+                          .style("fill",function(d,i) {
+                          	return color(i);
+                          }) 
+                          .call(force.drag);//设定我们可以拖动顶点  call 是用于将当前选择的元素传到 force.drag 函数
+        
+         //tick 指的是时间间隔，也就是每一个时间间隔之后就刷新一遍画面，刷新的内容写在后面的无名函数 function 中， function 函数中写上作图的内容。
+
+        force.on("tick", function() {
+        	svg_edges.attr("x1", function(d) {return d.source.x});
+        	svg_edges.attr("y1", function(d) {return d.source.y});
+        	svg_edges.attr("x2", function(d) {return d.target.x});
+        	svg_edges.attr("y2", function(d) {return d.target.y});
+
+        	svg_nodes.attr("cx", function(d) {return d.x});
+        	svg_nodes.attr("cy", function(d) {return d.y});
+
+        })
+		
+		
+	</script>
+</body>
+</html>
