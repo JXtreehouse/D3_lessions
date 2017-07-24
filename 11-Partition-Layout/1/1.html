@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Circle - Partition(圆形分区图)</title>
+	<link rel="stylesheet" href="">
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+	<script>
+		var width = 450,
+		height = 450,
+		radius = Math.min(width,height)/2,
+		color = d3.scale.category20();
+
+		var svg = d3.select("body").append("svg")
+		             .attr("width",width)
+		             .attr("height", height)
+		             .append("g")
+		             .attr("transform","translate(" + radius + "," + radius + ")");
+
+
+		var partition = d3.layout.partition()
+		                  .sort(null)
+		                  .size([2*Math.PI, radius*radius])  //第一个值为 2 * PI ，第二个值为圆半径的平方
+		                  .value(function(d) {return 1;})
+
+
+		//绘制 
+        //如果以圆形的形式来转换数据，那么 d.x 和 d.y 分别代表圆弧的绕圆心方向的起始位置和由圆心向外方向的其实位置。d.dx 和 d.dy 分别代表各自的宽度。
+		var arc = d3.svg.arc()
+		            .startAngle(function(d) {return d.x})
+		            .endAngle(function(d) {return d.x + d.dx})
+		            .innerRadius(function(d) {return Math.sqrt(d.y);})
+		            .outerRadius(function(d) {return Math.sqrt(d.y+d.dy);});
+
+
+		d3.json("http://otc2ysde8.bkt.clouddn.com/partition/1/city_tree.json", function(err,root){
+			if(err)
+				console.log(err);
+			console.log(root);
+
+
+			var nodes = partition.nodes(root);
+			var links = partition.links(nodes);
+
+			console.log(nodes);
+        //绘制圆弧
+			var arcs = svg.selectAll("g")
+			            .data(nodes)
+			            .enter().append("g");
+
+			arcs.append("path")
+			    .attr("display", function(d) {return d.depth? null : "none";}) //hide inner ring
+			    .attr("d",arc)
+			    .style("stroke","#fff")
+			    .style("fill", function(d) {return color((d.children? d:d.parent).name);})
+			    .on("mouseover", function(d){
+			    	d3.select(this).style("fill", "yellow");
+
+			    })
+
+			    .on("mouseout", function(d) {
+			    	d3.select(this)
+			    	  .transition()
+			    	  .duration(200)
+			    	  .style("fill", function(d) {
+			    	  	return color((d.children? d:d.parent).name);
+			    	  });
+			    });
+
+        //绘制文字
+			arcs.append("text")
+			     .style("font-size","12px")
+			     .style("font-family","simsun")
+			     .attr("text-anchor","middle")
+			     .attr("transform",function(d,i){
+			     	//第一个元素（最中间的），只平移不旋转
+			     	if(i == 0)
+			     		return "translate(" + arc.centroid(d) + ","  + 13 +")";
+
+			     	//其他的元素，既平移也旋转
+
+
+
+			     	var r = 0;
+
+			     	 if( (d.x+d.dx/2)/Math.PI*180 < 180 )  // 0 - 180 度以内的  
+
+			     	    r = 180 * ((d.x + d.dx / 2 - Math.PI / 2) / Math.PI);  
+              		 else  // 180 - 360 度以内的  
+                		r = 180 * ((d.x + d.dx / 2 + Math.PI / 2) / Math.PI);  
+
+                    //既平移也旋转  
+			            return  "translate(" + arc.centroid(d) + ")" +  
+			                    "rotate(" + r + ")";  
+			     })
+			      .text(function(d) { return d.name; });  
+                
+
+		})
+	</script>
+</body>
+</html>
