@@ -20,6 +20,9 @@ var scale_x = d3.scaleLinear().domain([0,data.length-1]).range([0,g_width])
 
 var scale_y = d3.scaleLinear().domain([0,d3.max(data)]).range([g_height,0])
 
+console.log(scale_x);
+console.log(scale_y);
+
 
 var line_generator = d3.line()
 .x(function(d,i){return scale_x(i);})//0,1,2,3...

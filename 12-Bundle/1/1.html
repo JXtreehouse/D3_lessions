@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>捆图</title>
+	<link rel="stylesheet" href="">
+	<style>
+		.node circle {
+			stroke:black;
+			stroke-width:2px;
+		}
+
+		.node text{
+			font-size: 12px;
+			font-family: simsun;
+		}
+
+		.link{
+			fill:none;
+			stroke:black;
+			stroke-width: 8px;
+			stroke-opacity:0.5;
+		}
+
+	</style>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8">
+		
+	</script>
+</head>
+<body>
+	<script>
+		var width = 500;//SVG 绘制区域的宽度
+		var height = 500; //SVG绘制区域的高度
+
+		var svg = d3.select("body")  //选择<body>
+		            .append("svg")    //在<body>中添加<svg>
+		            .attr("width", width)  // 设定<svg>的宽度属性
+		            .attr("height", height); //设定<svg>的高度属性
+
+
+        //1. 确定初始数据
+        var cities = {
+			name: "",
+            children:[
+                {name: "北京"},{name: "上海"},{name: "杭州"},
+                {name: "广州"},{name: "桂林"},{name: "昆明"},
+                {name: "成都"},{name: "西安"},{name: "太原"}
+            ]
+        };
+		
+		var railway = [
+			{source: "北京", target: "上海"},
+			{source: "北京", target: "广州"},
+			{source: "北京", target: "杭州"},
+			{source: "北京", target: "西安"},
+			{source: "北京", target: "成都"},
+			{source: "北京", target: "太原"},
+			{source: "北京", target: "桂林"},
+			{source: "北京", target: "昆明"},
+			{source: "北京", target: "成都"},
+			{source: "上海", target: "杭州"},
+			{source: "昆明", target: "成都"},
+			{source: "西安", target: "太原"}
+		];
+       
+
+       //2. 转换数据
+
+       //捆图布局要和其他布局联合使用，在这里与集群图布局联合。分别创建一个集群图布局和一个捆图布局。
+
+       var cluster = d3.layout.cluster()
+                       .size([360,width/2 -50])
+                       .separation(function(a,b) {return (a.parent == b.parent ? 1:2) /a.depth;}) 
+
+
+       var bundle = d3.layout.bundle();
+
+       //从集群图布局的参数可以看出，接下来节点将要分布呈圆形。捆图布局没有参数可以设置，只创建即可，保存在变量bundle中。
+
+       //先使用集群图布局计算节点   得到 节点数组
+       var nodes = cluster.nodes(cities);
+       console.log(nodes);
+       
+
+
+
+       //要使用数组railway。由于railway中存储的source和target都只有城市名称，因此先要将其对应成nodes中的节点对象。写一个函数，按城市名将railway中的source和target替换成节点对象。
+       var oLinks = map(nodes, railway);
+       console.log(oLinks);
+
+       var links = bundle(oLinks);
+       console.log(links);
+
+       //将links中的source和target由名称替换成节点
+
+       function map(nodes,links) {
+       	var hash = [];
+       	for (var i=0; i<nodes.length; i++){
+       		hash[nodes[i].name] = nodes[i];
+       	}
+
+       	var resultLinks = [];
+       	for(var i = 0; i < links.length; i++){
+				resultLinks.push({  source: hash[ links[i].source ], 
+									target: hash[ links[i].target ]
+								});
+			}
+			return resultLinks;
+
+       }
+
+       //3. 绘图
+
+
+
+
+
+
+
+
+	</script>
+</body>
+</html>

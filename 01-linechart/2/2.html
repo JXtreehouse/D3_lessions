@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title></title>
+	<link rel="stylesheet" href="">
+</head>
+<body>
+    <div id="svg"></div>
+	<script src="https://cdn.bootcss.com/d3/3.5.17/d3.js"></script>
+	<script>
+		var width = 400,
+		    height = 400;
+		var svg = d3.select("#svg")
+		            .append("svg")
+		            .attr("width",400)
+		            .attr("height",400);
+
+		//读取文件
+        
+
+        d3.json("data.json" , function(err,jsondata) {
+
+        	if (err) {
+        		console.log(err);
+        	}
+
+
+        	console.log(jsondata);
+
+        	var xmax = d3.max(jsondata.data, function (d) {
+
+                     return d.x;
+           
+        		})
+        	var ymax = d3.max(jsondata.data, function (d) {
+
+                     return d.y;
+           
+        		})
+
+        	console.log(xmax);
+        	console.log(ymax);
+
+            //坐标轴比尺  
+           var xScale = d3.scale.linear()
+                          .domain([0,xmax])
+                          .range([0,300])
+            
+
+           var yScale = d3.scale.linear()
+                          .domain([0,ymax])
+                          .range([250,0])
+
+            console.log(xScale);  //     function scale(x) {
+									  //   return output(x);
+									  // }
+
+            console.log(yScale);   //     function scale(x) {
+									  //   return output(x);
+									  // }
+
+            //画坐标轴
+
+            var xAxis = d3.svg.axis()
+                        .scale(xScale)
+                        .orient("bottom");
+            var yAxis = d3.svg.axis()
+                        .scale(yScale)
+                        .orient("left");
+
+
+             console.log(xAxis);
+             console.log(yAxis);
+            var gxAxis = svg.append("g")
+                       .attr("class","axis")
+                       .attr("tarnsform", "translate(30,300)")
+                       .call(xAxis);
+            var gyAxis = svg.append("g")
+                       .attr("class","axis")
+                       .attr("tarnsform", "translate(30,100)")
+                       .call(yAxis);
+
+            console.log(gxAxis);
+             console.log(gyAxis);
+            
+
+
+
+            //线生成器
+        	var line = d3.svg.line()
+        	          .x(function(d){ return xScale(d.x);})
+        	          .y(function(d){ return yScale(d.y);})
+        	          
+
+        	          
+        	svg.append("path")
+        	   .attr("class", "MyPath")
+        	   .attr("d", line(jsondata.data))
+        	   .attr("tarnsform", "translate(30,100)");
+
+
+        });
+
+
+
+
+	</script> 
+</body>
+</html>
