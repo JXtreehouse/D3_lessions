@@ -41,7 +41,9 @@ var str = '/var/www/site/Brand new document.docx';
 document.write( str.replace(/\s/g, '') );
 
 ```
-> str = str.split(' ').join('')
+
+
+>str = str.split(' ').join('')
 
 ```
 str = str.split(' ').join('')
