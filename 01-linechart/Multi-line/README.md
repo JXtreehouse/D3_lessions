@@ -22,3 +22,28 @@
 book
 
 <<D3-t-and-t-v4>> P343 
+
+## tips
+
+> How to remove spaces from a string using JavaScript?
+
+How to remove spaces in a string? For instance:
+```
+Input : '/var/www/site/Brand new document.docx'
+Output : '/var/www/site/Brandnewdocument.docx'
+```
+
+>str = str.replace(/\s/g, '');
+
+````
+var str = '/var/www/site/Brand new document.docx';
+
+document.write( str.replace(/\s/g, '') );
+
+```
+> str = str.split(' ').join('')
+
+```
+str = str.split(' ').join('')
+```
+
