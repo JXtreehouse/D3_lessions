@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>
+	ramdom tree
+	</title>
+	<link rel="stylesheet" href="">
+
+	<style>
+		.node{
+			.stroke{
+				stroke:#fff;
+				stroke-width: 2px;
+
+			}
+
+			.link{
+				fill:none;
+				stroke:#000;
+			}
+		}
+	</style>
+
+
+</head>
+<body>
+	<script src="//d3js.org/d3.v3.min.js"></script>
+	<script>
+		var width = 960,
+		   height = 500;
+
+		var tree = d3.layout.tree()
+		             .size([width-20,height-20]);
+
+		var root = {},
+		    nodes = tree(root);
+
+		root.parent = root;
+		root.px = root.x;
+		root.py = root.y;
+
+		var diagonal = d3.svg   
+	</script>
+</body>
+</html>

@@ -113,11 +113,55 @@
        //3. 绘图
 
 
+       //此线段生成器是用来获取连线路径的
+       var line = d3.svg.line.radial()
+                    .interpolate("bundle")   //在line.interpolate()所预定义的插值模式中，有一种就叫做bundle，正是为捆图准备的。
+                    .tension(.85)
+                    .radius(function(d) {return d.y})
+                    .angle( function (d) {return d.x/180 * Math.PI;});
 
 
 
+       //接下来，添加一个分组元素<g>，用来放所有与捆图相关的元素。
 
 
+       gBundle = svg.append("g")
+                    .attr("transform", "translate(" + (width/2) + "," + (height/2) + ")");
+
+       var color = d3.scale.category20c(); ////颜色比例尺  
+       
+
+       //然后，先在gBundle中添加连线路径：
+       var link = gBundle.selectAll(".link")
+                         .data(links)
+                         .enter()
+                         .append("path")
+                         .attr("class","link")
+                         .attr("d", line); 	//使用线段生成器
+
+
+       //最后，向图中添加节点。节点用一个圈，里面写上城市的名称来表示。首先，绑定节点数组，并添加与之对应的<g>元素。
+
+       var node = gBundle.selectAll(".node")
+                         .data(nodes.filter(function(d) {return !d.children;}))  //被绑定的数组是经过过滤后的nodes数组。此处的filter是JavaScript数组对象自身的函数//这里表示只绑定没有子节点的节点   也就是说9座城市的公共父节点不绘制 
+                         .enter()
+                         .append("g")
+                         .attr("class","node")
+                         .attr("transform", function(d) {
+                         	return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")" + "rotate(" + (90 -d.x) +")";
+                         });
+       
+
+       //然后只要在该分组元素<g>中分别加入<circle>和<text>即可。
+       node.append("circle")
+                 .attr("r",20)
+                 .style("fill", function(d,i) {return color(i)});
+
+
+       node.append("text")
+           .attr("dy",".2em")
+           .style("text-anchor","middle")
+           .text(function(d) {return d.name;});
 
 	</script>
 </body>

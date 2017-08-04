@@ -65,6 +65,35 @@
 	    //添加对应数目的弧组，即<g>元素
 	    var arcs = svg.selectAll("g")
 	                  .data(piedata)  ////绑定转换后的数据piedata
+	                  .enter()
+	                  .append("g")
+	                  .attr("transform","translate(" +( outerRadius )+"," + ( outerRadius) + ")");
+
+	    //绘制弧
+	    arcs.append("path")
+	         .atrr("fill", function(d, i) {
+	         	return color(i);//设定弧的颜色
+	         })
+	         .atrr("d", function(d) {
+	         	return arc(d); //使用弧生成器
+	         })
+        //绘制弧内的文字
+
+        arcs.append("text")
+            .attr("transform", function(d) {
+            	var x = arc.centroid(d)[0] * 1.4;  //文字的x坐标
+            	var y = arc.centroid(d)[1] *1.4;  //文字的y坐标
+            	return "translate(" + x + "," + y + ")";
+
+            } )
+            .attr("text-anchor", "middle")
+            .style("font-size", fontsize)
+            .text(function(d) {
+               //计算市场份额的百分比
+                var percent = Number(d.value)/d3.sum(dataset,function(d){ return d[1]; }) * 100;
+                //保留1位小数点，末尾加一个百分号返回
+				return percent.toFixed(1) + "%";
+            })
 
 
 

@@ -72,32 +72,25 @@
      	   .attr("fill",function(d,i) {
      	   	return color(i);
      	   })
-     	   .attr("d",path)  //其实相当于：.attr("d",funtion(d){ return path(d); }) 
+     	   .attr("d",path)  //其实相当于：.attr("d",funtion(d){ return path(d); })  
      	   .on("mouseover",function(d,i) {
 
-     	   	  d3.select(this)
-     	   	    .attr("fill","yellow");
-        
- 
-             /* 
-            鼠标移入时， 
-                （1）通过 selection.html() 来更改提示框的文字 
-                （2）通过更改样式 left 和 top 来设定提示框的位置 
-                （3）设定提示框的透明度为1.0（完全不透明） 
-          */  
-  
-            tooltip.html(d.properties.name)  
-                        .style("left", (d3.event.pageX) + "px")  
-                        .style("top", (d3.event.pageY + 20) + "px")  
-                        .style("opacity",1.0); 
+	     	   	  d3.select(this)
+	     	   	    .attr("fill","yellow");
+
+	            /* 
+				鼠标移入时， 
+				    （1）通过 selection.html() 来更改提示框的文字 
+				    （2）通过更改样式 left 和 top 来设定提示框的位置 
+				    （3）设定提示框的透明度为1.0（完全不透明） 
+				*/  
+
+	     	   	    
+	             tooltip.html(d.data[0] + "的出货量为" + "<br />" +   d.data[1] + " 百万台")  
+	     	   	        .style("left", (d3.event.pageX) + "px")  
+	                    .style("top", (d3.event.pageY) + "px");  
 
      	   })
-         .on("mousemove",function(d){  
-          /* 鼠标移动时，更改样式 left 和 top 来改变提示框的位置 */  
-            
-              tooltip.style("left", (d3.event.pageX) + "px")  
-                      .style("top", (d3.event.pageY + 20) + "px");  
-          })  
      	   .on("mouseout",function(d,i) {
      	   	  d3.select(this)
      	   	    .attr("fill",color(i));

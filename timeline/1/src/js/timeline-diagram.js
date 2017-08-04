@@ -95,7 +95,9 @@ d3.components.timelineDiagram = {
 			return d3.timeFormat('%Y-%m-%d')(d.date);
 
 		}
-	};
+	}
+
+};
 
 
 	//Timeline diagram
@@ -172,6 +174,77 @@ d3.components.timelineDiagram = {
         console.log(origin);
         var startX = orgin[0];  // 这是啥
         var startY = orgin[1];
+        d3.setAxes(9,{
+        	width:innerWidth,
+        	height:startY,
+        	scaleX:scale,
+        	axisX:axis
+        });
 
+        if(axis.label){
+        	var format =  d3.timeFormat(axis.format);
+        	g.append('text')
+        	 .attr('class','label')
+        	 .attr('x',startX - fontSize/2)
+        	 .attr('y', startY + lineHeight/8)
+        	 .attr('font-size',axis.fontSize)
+        	 .attr('fill',axis.fill)
+        	 .attr('text-anchor','start')
+        	 .text(format(domain[1]));  //?
+        }
+
+        //items
+        var items = options.items;
+        var images = options.image;
+        var imgWidth= options.maxWidth;
+        var imgHeight = options.maxHeight;
+        var connectors = options.connectors;
+        var dx = connectors.dx;
+        var dy = connectors.dy;
+        var xmax = [0,0]
+        var ymax = [dy,dy]  //?
+
+        g.selectAll('.item')
+         .data(data)
+         .enter()
+         .append('g')
+         .attr('class','item')
+         .attr('transform', function(d,i) {
+         	var idx = i%2;
+         	var x = scale(d.date)
+         	var y = ymax[idx];  //?
+
+         	d.width = imgHeight * (d.width / d.height) || imgWidth;
+         	d.height = Math.min(d.height || Infinity, imgHeight);
+         	
+            //这段意思？
+         	if(i > 1 && xmax[idx] + d.width>x) {
+         		y += 2 * dy + d.height;
+         	}else{
+         		y = dy;
+         	}
+
+         	xmax[idx] = x;
+         	ymax[idx] = y;
+         	d.dx = d.hasOwnProperty('dx')? Number(d.dx) : dx*(y>dy?y/dy : 1);
+         	d.dy = d.hasOwnProperty('dy')? Number(d.dy) : (idx? y : -y);
+         	return d3.translate(x,origin[1]);  //?
+         });
+         
+         //connectors
+
+         g.selectAll('.item')
+          .append('line')
+          .attr('class', 'connectors')
+          .attr('x1',0)
+          .attr('y1',0)
+          .attr('x2',function(d) {
+          	return d.dx;
+          })
+          .attr('y2',function(d) {
+            return d.dy;
+          })
+          .attr('stroke',connectors.stroke)
+          .attr('stroke-width',connectors.strokeWidth);
 	}
 }
