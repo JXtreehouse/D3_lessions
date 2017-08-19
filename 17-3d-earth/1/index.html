@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>3d earth</title>
+	<link rel="stylesheet" href="./style.css">
+	<style>
+		#map{
+			height: 500px;
+
+			overflow: hidden;
+			background: black;
+			position:relative;
+		}
+
+		svg{
+			height: 100%;
+			width: 100%;
+		}
+
+		.land{
+			fill:steelblue;
+		}
+		.bound{
+			stroke:#ccc;
+			fill:none;
+		}
+
+		.grat{
+			fill:none;
+			stroke:white;
+		}
+
+		#control{
+			position: absolute;
+			z-index: 999;
+			top:10px;
+			left: 10px;
+			color: white;
+		}
+
+	</style>
+
+	<script src="http://cdn.bootcss.com/d3/4.10.0/d3.js"></script>
+	<script src="http://cdn.bootcss.com/topojson/3.0.0/topojson.js"></script>
+
+</head>
+<body>
+  <div id="map">
+  	<div id="control">
+  		<button id="x">x++</button>
+  		<button id="y">y++</button>
+  		<button id="z">z++</button>
+  	</div>
+  	<svg></svg>
+  </div>
+  <script>
+    window.onload = function() {
+	    console.log(d3.select("svg").style("width"));
+	    var w = parseInt(d3.select("svg").style("width"));
+	    var h = parseInt(d3.select("svg").style("height"));
+	    console.log(w);
+
+	    var svg = d3.select("svg");
+	    var g_map = svg.append("g").attr("class","map");
+
+	    var g_gra = g_map.append("g");
+	    var g_geo = g_map.append("g");
+
+	    d3.selectAll("#control button")
+	       .on("click",changeRotate)
+
+	   var projection = d3.geoOrthographic()
+
+	   var path = d3.geoPath().projection(projection)
+
+	   var grat = d3.geoGraticule();
+
+	   inter = d3.geoInterpolate([150,49],[0,-30]);
+	   
+
+	   d3.json("world-50m.json",(err,topo) => {
+	   	 if(err) throw err;
+	   	 projection.fitExtent([[100,100],[w-100,h-100]],topojson.feature(topo,topo.objects.land));
+	   	 window.topo = topo;
+	   	 drawEarth();
+	   })
+
+	   
+
+	   function drawEarth() {
+
+	   	g_gra.select("path").remove()
+	   	g_gra.append("path")
+	   	     .datum(grat)
+	   	     .attr("d",path)
+	   	     .attr("class","grat")
+
+	   	var update_map = g_geo.selectAll("path")
+	   	                      .data([{
+	   	                      	"topo":topojson.feature(topo,topo.objects.land),
+	   	                      	"type": "land"
+	   	                  },{
+	   	                  	"topo": topojson.mesh(topo,topo.objects.countries, function(a,b) {
+	   	                  		return a!==b;
+	   	                  	}),
+	   	                  	"type":"bound"
+	   	                  }])
+	   	update_map.exit().remove();
+
+	   	update_map.enter().append("path").merge(update_map)
+	   	          .attr("d", (d)=> {return path(d.topo);})
+	   	          .attr("class",(d) => {return d.type})
+	   }
+
+	   
+
+	   function changeRotate() {
+	   	console.log();
+	   	var rotate =projection.rotate();
+	   	var id = d3.event.target.getAttribute("id");
+	   	switch(id) {
+	   		case "x": 
+	   		         rotate[0]+=2;
+	   		         projection.rotate(rotate);
+	   		         drawEarth();
+	   		         break;
+	   		case "y":
+	   		        rotate[1] +=2;
+	   		        projection.rotate(rotate);
+	   		        drawEarth();
+	   		        break;
+
+	   	    case "z":
+	   	            rotate[2]+=2;
+	   	            projection.rotate(rotate);
+	   	            drawEarth();
+	   	            break;
+	   	}
+	   }
+    }	
+  </script>
+
+	
+</body>
+</html>
