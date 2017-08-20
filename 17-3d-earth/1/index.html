@@ -39,6 +39,10 @@
 			left: 10px;
 			color: white;
 		}
+		.overlay{
+			fill:none;
+			pointer-events: all;
+		}
 
 	</style>
 
@@ -69,11 +73,11 @@
 	    var g_geo = g_map.append("g");
 
 	    d3.selectAll("#control button")
-	       .on("click",changeRotate)
+	       .on("click",changeRotate);
 
 	   var projection = d3.geoOrthographic()
-
-	   var path = d3.geoPath().projection(projection)
+	                      
+	   var path = d3.geoPath().projection(projection);
 
 	   var grat = d3.geoGraticule();
 
@@ -85,6 +89,9 @@
 	   	 projection.fitExtent([[100,100],[w-100,h-100]],topojson.feature(topo,topo.objects.land));
 	   	 window.topo = topo;
 	   	 drawEarth();
+	   	 // changeZoom();
+
+
 	   })
 
 	   
@@ -119,6 +126,7 @@
 	   function changeRotate() {
 	   	console.log();
 	   	var rotate =projection.rotate();
+
 	   	var id = d3.event.target.getAttribute("id");
 	   	switch(id) {
 	   		case "x": 
@@ -139,7 +147,44 @@
 	   	            break;
 	   	}
 	   }
-    }	
+
+
+	   // function changeZoom () {
+	   
+	   	
+	   // 	var initRotate =projection.rotate();
+	   // 	var initScale = projection.scale(); 
+	   // 	var zoom = d3.zoom()
+	   // 	             .scaleExtent([1,10])
+	   // 	             .on("zoom", function(d) {
+
+	   // 	             	 var transform = d3.event.transform; 
+	   // 	             	//update rotation of projection function
+    //                      projection.rotate([
+    //                          initRotate[0] + 180*d3.event.rotate[0] / w,
+    //                          initRotate[1] - 180*d3.event.rotate[1] /h,
+    //                          initRotate[2]
+    //                      	]);
+
+    //                      //update scaling of projection function
+
+    //                      projection.scale(initScale * d3.event.scale);
+    //                      console.log('test');
+
+    //                      //rerender map
+                         
+    //                       drawEarth(d)
+	   // 	             });
+
+	   // 	svg.append("rect")
+	   // 	    .attr("class","overlay")
+	   // 	    .attr("x", 0)
+	   // 	    .attr("y", 0)
+	   // 	    .attr("width",w)
+	   // 	    .attr("height",h)
+	   // 	    .call(zoom)
+	   // }
+    // }	
   </script>
 
 	
